@@ -7,13 +7,16 @@
     "start": "node index.js",
     "dev": "nodemon index.js"
   },
-  "keywords": [],
+  "keywords": ["social-deduction", "game", "socket.io", "express"],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "Backend server for social deduction lying game",
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^5.1.0",
     "socket.io": "^4.8.1"
+  },
+  "engines": {
+    "node": ">=16.0.0"
   }
 }

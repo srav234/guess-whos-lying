@@ -5,14 +5,26 @@ const cors = require('cors');
 
 const app = express();
 const server = http.createServer(app);
+
+// Get frontend URL from environment variable or use localhost for development
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
+
 const io = new Server(server, {
   cors: {
-    origin: 'http://localhost:3000',
+    origin: [FRONTEND_URL, 'http://localhost:3000'],
     methods: ['GET', 'POST']
   }
 });
 
-app.use(cors());
+app.use(cors({
+  origin: [FRONTEND_URL, 'http://localhost:3000'],
+  credentials: true
+}));
+
+// Health check endpoint for Render
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
+});
 
 const rooms = {}; // { [roomCode]: { players: [...], liarSocketId, realQuestion, liarQuestion, scores: {...}, creator: username, currentAdmin: username } }
 const socketToRoom = {}; // { socketId: roomCode }

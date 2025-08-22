@@ -9,9 +9,10 @@ import QuestionScreen from './components/QuestionScreen';
 import VotingScreen from './components/VotingScreen';
 import ResultsScreen from './components/ResultsScreen';
 import FinalScoreboardScreen from './components/FinalScoreboardScreen';
+import config from './config';
 import './App.css';
 
-const socket = io('http://localhost:3001');
+const socket = io(config.backendUrl);
 
 function App() {
   const [username, setUsername] = useState('');
