@@ -9,6 +9,11 @@ const server = http.createServer(app);
 // Get frontend URL from environment variable or use localhost for development
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 
+// Debug logging for CORS configuration
+console.log('🔧 CORS Configuration:');
+console.log('   FRONTEND_URL:', FRONTEND_URL);
+console.log('   Allowed origins:', [FRONTEND_URL, 'http://localhost:3000']);
+
 const io = new Server(server, {
   cors: {
     origin: [FRONTEND_URL, 'http://localhost:3000'],
