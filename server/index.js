@@ -17,13 +17,22 @@ console.log('   Allowed origins:', [FRONTEND_URL, 'http://localhost:3000']);
 const io = new Server(server, {
   cors: {
     origin: [FRONTEND_URL, 'http://localhost:3000'],
-    methods: ['GET', 'POST']
-  }
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+    preflightContinue: false,
+    optionsSuccessStatus: 204
+  },
+  transports: ['websocket', 'polling']
 });
 
 app.use(cors({
   origin: [FRONTEND_URL, 'http://localhost:3000'],
-  credentials: true
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+  preflightContinue: false,
+  optionsSuccessStatus: 204
 }));
 
 // Health check endpoint for Render
@@ -68,12 +77,15 @@ io.on('connection', (socket) => {
     console.log(`🏗️ Create room request: ${username} creating room ${roomCode}`);
     console.log(`🏠 Current rooms before creation:`, Object.keys(rooms));
     
-    if (!rooms[roomCode]) {
-      rooms[roomCode] = { players: [], scores: {}, creator: username, currentAdmin: username };
-      console.log(`✅ Created new room ${roomCode} for ${username}`);
-    } else {
-      console.log(`⚠️ Room ${roomCode} already exists, adding ${username} to it`);
+    if (rooms[roomCode]) {
+      console.log(`❌ Room ${roomCode} already exists, cannot create duplicate`);
+      socket.emit('error-message', 'Room already exists. Please join instead or use a different room code.');
+      return;
     }
+
+    // Create new room
+    rooms[roomCode] = { players: [], scores: {}, creator: username, currentAdmin: username };
+    console.log(`✅ Created new room ${roomCode} for ${username}`);
 
     const player = { username, socketId: socket.id };
     rooms[roomCode].players.push(player);
@@ -91,7 +103,7 @@ io.on('connection', (socket) => {
     const room = rooms[roomCode];
     if (!room) {
       console.log(`❌ Room ${roomCode} not found`);
-      socket.emit('error-message', 'Room does not exist');
+      socket.emit('error-message', 'Room does not exist. Please check the room code or create a new room.');
       return;
     }
 
@@ -115,7 +127,16 @@ io.on('connection', (socket) => {
     socket.join(roomCode);
 
     console.log(`✅ ${username} joined room ${roomCode}. Room now has ${room.players.length} players:`, room.players.map(p => p.username));
+    
+    // Emit updated player list to ALL players in the room
     emitPlayerList(roomCode);
+    
+    // Also emit a success message to the joining player
+    socket.emit('join-success', { 
+      message: `Successfully joined room ${roomCode}`,
+      roomCode,
+      players: room.players.map(p => p.username)
+    });
   });
 
   socket.on('rejoin-room', ({ roomCode, username }) => {
@@ -337,7 +358,12 @@ function emitPlayerList(roomCode) {
       rejoiningPlayers: rejoiningList
     };
     
+    console.log(`📢 Emitting player list for room ${roomCode}:`, playerData);
+    console.log(`📡 Sending to ${room.players.length} players in room ${roomCode}`);
+    
     io.to(roomCode).emit('update-players', playerData);
+  } else {
+    console.log(`❌ Cannot emit player list: Room ${roomCode} not found`);
   }
 }
 
