@@ -49,26 +49,100 @@ const rejoiningPlayers = {}; // { [roomCode]: Set of usernames who need to rejoi
 // Pool of question pairs for different rounds
 const questionPairs = [
   {
-    real: "What's your most embarrassing childhood memory?",
-    liar: "What's your favorite childhood memory?"
+    real: "What's the age you had your first crush?",
+    liar: "State a number between 5-20"
   },
   {
-    real: "What's the worst food you've ever tasted?",
-    liar: "What's your favorite food?"
+    real: "What's the most amount of alcoholic drinks you've had in one night?",
+    liar: "State a number between 2-30"
   },
   {
-    real: "What's the most trouble you've ever been in at school?",
-    liar: "What's your best school memory?"
+    real: "What's your favourite TV show of all time?",
+    liar: "What's the most overrated show of all time?"
   },
   {
-    real: "What's the most embarrassing thing that happened to you in public?",
-    liar: "What's your proudest moment in public?"
+    real: "What time period in history would travel back in time to?",
+    liar: "What would be the worst period in history to time travel to?"
   },
   {
-    real: "What's the worst date you've ever been on?",
-    liar: "What's your best date memory?"
+    real: "What's the one thing you can't live without in your house?",
+    liar: "What's the most expensive thing you own?"
+  },
+  {
+    real: "What animal would you choose to turn into?",
+    liar: "What's your least favourite animal?"
+  },
+  {
+    real: "How many push ups can you do?",
+    liar: "State a number from 1-40"
+  },
+  {
+    real: "What's your dream vacation destination that you haven't yet been to?",
+    liar: "Where's the best place you've travelled in the last 5 years?"
+  },
+  {
+    real: "What's the last movie that made you cry?",
+    liar: "What's the last movie that was so bad you couldn't finish?"
+  },
+  {
+    real: "What's your hidden talent?",
+    liar: "What skill do you wish you had?"
+  },
+  {
+    real: "What's your favourite form of exercise?",
+    liar: "What form of exercise do you avoid at all costs?"
+  },
+  {
+    real: "What's your go to pizza topping?",
+    liar: "What pizza topping should be banned?"
+  },
+  {
+    real: "What's your favourite season of the year?",
+    liar: "What's your least favourite season of the year?"
+  },
+  {
+    real: "What social media app do you use the most?",
+    liar: "What social media app do you think is most toxic?"
+  },
+  {
+    real: "How many unread emails do you currently have?",
+    liar: "State a number between 0-1000"
+  },
+  {
+    real: "What's your favorite song to sing in the shower?",
+    liar: "What's one song that irritates you?"
+  },
+  {
+    real: "How many cups of coffee do you drink per day?",
+    liar: "State a number between 0-8"
+  },
+  {
+    real: "What city would you love to live in one day?",
+    liar: "What's one city you think is overrated to live in?"
+  },
+  {
+    real: "How many pairs of shoes do you own?",
+    liar: "State a number between 5-50"
+  },
+  {
+    real: "How many times do you hit the snooze button in the morning?",
+    liar: "State a number between 0-10"
+  },
+  {
+    real: "What's the most number of days you've gone without showering?",
+    liar: "State a number between 0-7"
+  },
+  {
+    real: "If you could be a contestant on any reality TV show, what would it be?",
+    liar: "What reality TV show do you hate?"
   }
 ];
+
+// Function to randomly select 3 question pairs for a game
+function selectRandomQuestions() {
+  const shuffled = [...questionPairs].sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, 3);
+}
 
 io.on('connection', (socket) => {
   console.log('✅ New connection:', socket.id);
@@ -196,6 +270,12 @@ io.on('connection', (socket) => {
       return;
     }
 
+    // Select 3 random question pairs for this game
+    const selectedQuestions = selectRandomQuestions();
+    room.gameQuestions = selectedQuestions;
+    
+    console.log(`🎲 Selected questions for room ${roomCode}:`, selectedQuestions.map(q => q.real.substring(0, 30) + '...'));
+    
     startNewRound(roomCode, 0); // Start with first question pair
   });
 
@@ -403,7 +483,8 @@ function startNewRound(roomCode, questionIndex) {
     return;
   }
 
-  const questionPair = questionPairs[questionIndex];
+  // Use the randomly selected questions for this game
+  const questionPair = room.gameQuestions[questionIndex];
   const players = room.players;
   const liarIndex = Math.floor(Math.random() * players.length);
   const liar = players[liarIndex];
@@ -415,6 +496,7 @@ function startNewRound(roomCode, questionIndex) {
   answers[roomCode] = []; // initialize answer list
 
   console.log(`🤫 Round ${questionIndex + 1}: The liar is ${liar.username} in room ${roomCode}`);
+  console.log(`📝 Question: ${questionPair.real.substring(0, 50)}...`);
 
   // Emit initial submission status (no one has submitted yet)
   io.to(roomCode).emit('submission-status-update', {
