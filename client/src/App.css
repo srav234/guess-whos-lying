@@ -1612,23 +1612,39 @@
 }
 
 .question-label {
-  color: #6c757d;
-  font-size: 1rem;
-  font-weight: 600;
+  color: #667eea;
+  font-size: 1.1rem;
+  font-weight: 700;
   margin: 0 0 1rem 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .real-question-display {
   margin: 0 auto;
-  padding: 1.5rem;
-  border: 2px solid #e9ecef;
-  border-radius: 12px;
+  padding: 2rem;
+  border: 3px solid #667eea;
+  border-radius: 16px;
   max-width: 600px;
-  background: #f8f9ff;
-  font-style: italic;
+  background: linear-gradient(135deg, #eef2ff 0%, #f8f9ff 100%);
+  font-style: normal;
   color: #2d3748;
-  font-size: 1.1rem;
-  line-height: 1.5;
+  font-size: 1.2rem;
+  line-height: 1.6;
+  font-weight: 500;
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.real-question-display::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
 }
 
 .voted-message {

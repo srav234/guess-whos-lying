@@ -20,8 +20,6 @@ function VotingScreen({ answers, username, realQuestion, onVote }) {
     <div className="voting-screen">
       <div className="voting-card">
         <h1 className="game-title">Guess Who's Lying</h1>
-        <h2 className="voting-header">Who do you think is the liar?</h2>
-        <p className="voting-subtitle">Vote for who you think had the different question</p>
         
         <div className="real-question-section">
           <p className="question-label">The real question was:</p>
@@ -36,7 +34,7 @@ function VotingScreen({ answers, username, realQuestion, onVote }) {
           </div>
         ) : (
           <div className="answers-section">
-            <h3 className="answers-header">Player Answers:</h3>
+            <h3 className="answers-header">Vote for who you think had the different question</h3>
             <div className="answers-list">
               {answers.map((a, index) => {
                 const isOwn = a.username === username;
@@ -51,7 +49,7 @@ function VotingScreen({ answers, username, realQuestion, onVote }) {
                     aria-disabled={!selectable}
                   >
                     <div className="answer-header">
-                      <span className="player-name">{a.username}</span>
+                      <span className="player-name">{a.username} answered...</span>
                       {isOwn && <span className="you-badge">(You)</span>}
                     </div>
                     <div className="answer-text">{a.text}</div>
