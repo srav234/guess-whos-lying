@@ -44,7 +44,7 @@ const rooms = {}; // { [roomCode]: { players: [...], liarSocketId, realQuestion,
 const socketToRoom = {}; // { socketId: roomCode }
 const answers = {}; // { [roomCode]: [{ username, answer }] }
 const votes = {};   // { [roomCode]: [{ voter, target }] }
-const rejoiningPlayers = {}; // { [roomCode]: Set of usernames who need to rejoin }
+
 
 // Pool of question pairs for different rounds
 const questionPairs = [
@@ -58,7 +58,7 @@ const questionPairs = [
   },
   {
     real: "What's your favourite TV show of all time?",
-    liar: "What's the most overrated show of all time?"
+    liar: "What's the most overrated TV show of all time?"
   },
   {
     real: "What time period in history would travel back in time to?",
@@ -213,47 +213,7 @@ io.on('connection', (socket) => {
     });
   });
 
-  socket.on('rejoin-room', ({ roomCode, username }) => {
-    const room = rooms[roomCode];
-    if (!room) {
-      socket.emit('error-message', 'Room does not exist');
-      return;
-    }
 
-    // Check if this player was in the room before
-    const wasInRoom = room.players.some((p) => p.username === username);
-    if (!wasInRoom) {
-      socket.emit('error-message', 'You were not in this room before');
-      return;
-    }
-
-    // Update socket ID for existing player
-    const existingPlayer = room.players.find((p) => p.username === username);
-    if (existingPlayer) {
-      existingPlayer.socketId = socket.id;
-      socketToRoom[socket.id] = roomCode;
-      socket.join(roomCode);
-      
-      // Remove from rejoining list
-      if (rejoiningPlayers[roomCode]) {
-        rejoiningPlayers[roomCode].delete(username);
-      }
-      
-      // If all players have rejoined, reset game state
-      if (rejoiningPlayers[roomCode] && rejoiningPlayers[roomCode].size === 0) {
-        // Reset game state for new session
-        room.currentRound = 0;
-        room.scores = {};
-        room.players.forEach(player => {
-          room.scores[player.username] = 0;
-        });
-        console.log(`🔄 All players rejoined, game state reset for room ${roomCode}`);
-      }
-      
-      console.log(`${username} rejoined room ${roomCode}`);
-      emitPlayerList(roomCode);
-    }
-  });
 
   socket.on('start-game', async ({ roomCode }) => {
     const room = rooms[roomCode];
@@ -263,12 +223,7 @@ io.on('connection', (socket) => {
       return;
     }
 
-    // Check if all players have rejoined
-    if (rejoiningPlayers[roomCode] && rejoiningPlayers[roomCode].size > 0) {
-      const missingPlayers = Array.from(rejoiningPlayers[roomCode]).join(', ');
-      io.to(roomCode).emit('error-message', `Waiting for players to rejoin: ${missingPlayers}`);
-      return;
-    }
+
 
     // Select 3 random question pairs for this game
     const selectedQuestions = selectRandomQuestions();
@@ -286,22 +241,11 @@ io.on('connection', (socket) => {
     // Check if we've reached the maximum rounds (3)
     const currentRound = room.currentRound || 0;
     if (currentRound >= 2) { // 0, 1, 2 = 3 rounds total
-      // Game is over, add all players to rejoining list
-      if (!rejoiningPlayers[roomCode]) {
-        rejoiningPlayers[roomCode] = new Set();
-      }
-      room.players.forEach(player => {
-        rejoiningPlayers[roomCode].add(player.username);
-      });
-      
-      // Emit final results
+      // Game is over
       io.to(roomCode).emit('game-over', {
         totalScores: room.scores,
         finalRound: currentRound + 1
       });
-      
-      // Update player list to show rejoining status
-      emitPlayerList(roomCode);
       return;
     }
     
@@ -390,12 +334,6 @@ io.on('connection', (socket) => {
       const disconnectedPlayer = room.players.find((p) => p.socketId === socket.id);
       
       if (disconnectedPlayer) {
-        // Mark player as needing to rejoin
-        if (!rejoiningPlayers[roomCode]) {
-          rejoiningPlayers[roomCode] = new Set();
-        }
-        rejoiningPlayers[roomCode].add(disconnectedPlayer.username);
-        
         // Check if admin left and reassign if needed
         if (disconnectedPlayer.username === room.currentAdmin) {
           const remainingPlayers = room.players.filter((p) => p.username !== disconnectedPlayer.username);
@@ -416,7 +354,6 @@ io.on('connection', (socket) => {
         delete rooms[roomCode];
         delete answers[roomCode];
         delete votes[roomCode];
-        delete rejoiningPlayers[roomCode];
         console.log(`🧹 Room ${roomCode} deleted`);
       }
     }
@@ -429,13 +366,11 @@ function emitPlayerList(roomCode) {
   const room = rooms[roomCode];
   if (room) {
     const usernames = room.players.map((p) => p.username);
-    const rejoiningList = rejoiningPlayers[roomCode] ? Array.from(rejoiningPlayers[roomCode]) : [];
     
     const playerData = { 
       players: usernames, 
       creator: room.creator,
-      currentAdmin: room.currentAdmin,
-      rejoiningPlayers: rejoiningList
+      currentAdmin: room.currentAdmin
     };
     
     console.log(`📢 Emitting player list for room ${roomCode}:`, playerData);

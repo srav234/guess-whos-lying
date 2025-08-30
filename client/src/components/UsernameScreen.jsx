@@ -48,6 +48,11 @@ function UsernameScreen({ onSubmit }) {
             placeholder="Enter your username"
             maxLength={20}
             className="username-input"
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
+            spellCheck="false"
+            data-form-type="other"
           />
         </div>
         

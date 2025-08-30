@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import io from 'socket.io-client';
 import UsernameScreen from './components/UsernameScreen';
 import GameModeScreen from './components/GameModeScreen';
-import CreateGameScreen from './components/CreateGameScreen';
+
 import JoinGameScreen from './components/JoinGameScreen';
 import LobbyScreen from './components/LobbyScreen';
 import QuestionScreen from './components/QuestionScreen';
@@ -21,7 +21,7 @@ function App() {
   const [players, setPlayers] = useState([]);
   const [roomCreator, setRoomCreator] = useState('');
   const [currentAdmin, setCurrentAdmin] = useState('');
-  const [rejoiningPlayers, setRejoiningPlayers] = useState([]);
+
   const [inLobby, setInLobby] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
   const [question, setQuestion] = useState('');
@@ -51,13 +51,11 @@ function App() {
         setPlayers(playerData.players);
         setRoomCreator(playerData.creator);
         setCurrentAdmin(playerData.currentAdmin || playerData.creator);
-        setRejoiningPlayers(playerData.rejoiningPlayers || []);
       } else {
         // Handle legacy format for backward compatibility
         setPlayers(playerData);
         setRoomCreator(playerData[0] || '');
         setCurrentAdmin(playerData[0] || '');
-        setRejoiningPlayers([]);
       }
     };
 
@@ -306,7 +304,6 @@ function App() {
           username={username}
           isAdmin={isAdmin}
           onStart={handleStartGame}
-          rejoiningPlayers={rejoiningPlayers}
           currentAdmin={currentAdmin}
           error={lobbyError}
         />

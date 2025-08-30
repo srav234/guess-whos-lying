@@ -5,13 +5,12 @@ function QuestionScreen({ username, question, roomCode, socket, submissionStatus
   const [answer, setAnswer] = useState('');
   const [submitted, setSubmitted] = useState(false);
   
-  // Debug logging
-  console.log('🔍 QuestionScreen render:', { submissionStatus, players, username });
+
 
   const handleSubmit = () => {
     const trimmed = answer.trim();
-    if (trimmed.length < 5) {
-      alert('Please enter a more complete answer.');
+    if (trimmed.length === 0) {
+      alert('Please enter an answer.');
       return;
     }
 
@@ -31,7 +30,8 @@ function QuestionScreen({ username, question, roomCode, socket, submissionStatus
   };
 
   const handleKeyPress = (e) => {
-    if (e.key === 'Enter' && e.ctrlKey) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
       handleSubmit();
     }
   };
@@ -82,7 +82,7 @@ function QuestionScreen({ username, question, roomCode, socket, submissionStatus
             <button
               onClick={handleSubmit}
               className="submit-button"
-              disabled={answer.trim().length < 5}
+              disabled={answer.trim().length === 0}
             >
               Submit Answer
             </button>

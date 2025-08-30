@@ -1,13 +1,8 @@
 // components/LobbyScreen.jsx
 import { useState } from 'react';
 
-function LobbyScreen({ roomCode, players, username, isAdmin, onStart, rejoiningPlayers = [], currentAdmin, error }) {
+function LobbyScreen({ roomCode, players, username, isAdmin, onStart, currentAdmin, error }) {
   const [copySuccess, setCopySuccess] = useState(false);
-  
-  const handleRejoin = () => {
-    // This will trigger the rejoin logic in App.js
-    window.location.reload(); // Simple approach - reload to rejoin
-  };
   
   const handleCopyRoomCode = async () => {
     try {
@@ -27,8 +22,7 @@ function LobbyScreen({ roomCode, players, username, isAdmin, onStart, rejoiningP
     }
   };
 
-  const isRejoining = rejoiningPlayers.includes(username);
-  const canStartGame = isAdmin && rejoiningPlayers.length === 0;
+  const canStartGame = isAdmin;
 
   return (
     <div className="lobby-screen">
@@ -36,10 +30,7 @@ function LobbyScreen({ roomCode, players, username, isAdmin, onStart, rejoiningP
         <div className="lobby-header">
           <h1 className="game-title">Guess Who's Lying</h1>
           <p className="lobby-instruction">
-            {rejoiningPlayers.length > 0 
-              ? "Wait for everyone to rejoin, then start the game!" 
-              : "Join the game and wait for the admin to start!"
-            }
+            Join the game and wait for the admin to start!
           </p>
         </div>
 
@@ -92,9 +83,7 @@ function LobbyScreen({ roomCode, players, username, isAdmin, onStart, rejoiningP
                   {player === username && (
                     <div className="you-badge">You</div>
                 )}
-                  <div className="player-status">
-                    {rejoiningPlayers.includes(player) ? 'Rejoining...' : 'Ready'}
-                  </div>
+                  <div className="player-status">Ready</div>
                 </div>
               ))
             ) : (
@@ -111,13 +100,7 @@ function LobbyScreen({ roomCode, players, username, isAdmin, onStart, rejoiningP
           </div>
         </div>
 
-        {isRejoining ? (
-          <div className="rejoin-section">
-            <button onClick={handleRejoin} className="rejoin-button">
-              Rejoin Game
-            </button>
-          </div>
-        ) : canStartGame ? (
+        {canStartGame ? (
           <div className="start-game-section">
             <button onClick={onStart} className="start-game-button">
               Start Game
@@ -126,10 +109,7 @@ function LobbyScreen({ roomCode, players, username, isAdmin, onStart, rejoiningP
         ) : (
           <div className="waiting-section">
             <p className="waiting-text">
-              {isAdmin 
-                ? `Waiting for ${rejoiningPlayers.length} player${rejoiningPlayers.length !== 1 ? 's' : ''} to rejoin...`
-                : "Waiting for admin to start the game..."
-              }
+              Waiting for admin to start the game...
             </p>
           </div>
         )}
