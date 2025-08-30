@@ -48,6 +48,11 @@ function JoinGameScreen({ onJoin, onBack, error: serverError }) {
             placeholder="Enter room code"
             maxLength={6}
             className="room-code-input"
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
+            spellCheck="false"
+            data-form-type="other"
           />
         </div>
         
