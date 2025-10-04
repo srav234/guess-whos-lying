@@ -106,18 +106,12 @@ function ResultsScreen({
           </div>
         </div>
 
-        {/* Next Round Button or See Results Button */}
+        {/* Next Round Button */}
         {isAdmin && (
           <div className="next-round-section">
-            {roundNumber >= 3 ? (
-              <button onClick={onNextRound} className="next-round-button see-results-button">
-                See Results
-              </button>
-            ) : (
-              <button onClick={onNextRound} className="next-round-button">
-                Next Round
-              </button>
-            )}
+            <button onClick={onNextRound} className="next-round-button">
+              Next Round
+            </button>
           </div>
         )}
 

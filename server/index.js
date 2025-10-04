@@ -217,41 +217,36 @@ io.on('connection', (socket) => {
 
   socket.on('start-game', async ({ roomCode }) => {
     const room = rooms[roomCode];
-    
+
     if (!room || room.players.length < 3) {
       io.to(roomCode).emit('error-message', 'Need at least 3 players to start the game');
       return;
     }
 
+    // Initialize tracking for used questions and round counter
+    room.usedQuestions = [];
+    room.currentRound = 0;
 
-
-    // Select 3 random question pairs for this game
-    const selectedQuestions = selectRandomQuestions();
-    room.gameQuestions = selectedQuestions;
-    
-    console.log(`🎲 Selected questions for room ${roomCode}:`, selectedQuestions.map(q => q.real.substring(0, 30) + '...'));
-    
-    startNewRound(roomCode, 0); // Start with first question pair
+    startNewRound(roomCode);
   });
 
   socket.on('next-round', ({ roomCode }) => {
     const room = rooms[roomCode];
     if (!room) return;
-    
-    // Check if we've reached the maximum rounds (3)
-    const currentRound = room.currentRound || 0;
-    if (currentRound >= 2) { // 0, 1, 2 = 3 rounds total
-      // Game is over
+
+    // Check if any player has reached 5 points
+    const maxScore = Math.max(...Object.values(room.scores));
+    if (maxScore >= 5) {
+      // Game is over - one or more players hit 5 points
       io.to(roomCode).emit('game-over', {
         totalScores: room.scores,
-        finalRound: currentRound + 1
+        finalRound: room.currentRound
       });
       return;
     }
-    
-    // Get next question pair
-    const nextRound = currentRound + 1;
-    startNewRound(roomCode, nextRound);
+
+    // Continue to next round
+    startNewRound(roomCode);
   });
 
   socket.on('submit-answer', ({ roomCode, username, answer }) => {
@@ -411,15 +406,29 @@ function calculateRoundScores(roomCode, votes, liarName) {
   return scores;
 }
 
-function startNewRound(roomCode, questionIndex) {
+function startNewRound(roomCode) {
   const room = rooms[roomCode];
   if (!room || room.players.length < 3) {
     io.to(roomCode).emit('error-message', 'Need at least 3 players to start the game');
     return;
   }
 
-  // Use the randomly selected questions for this game
-  const questionPair = room.gameQuestions[questionIndex];
+  // Select a random question that hasn't been used yet
+  let availableQuestions = questionPairs.filter((_, index) => !room.usedQuestions.includes(index));
+
+  // If all questions have been used, reset the pool
+  if (availableQuestions.length === 0) {
+    room.usedQuestions = [];
+    availableQuestions = questionPairs;
+  }
+
+  const randomIndex = Math.floor(Math.random() * availableQuestions.length);
+  const questionPair = availableQuestions[randomIndex];
+
+  // Mark this question as used
+  const actualIndex = questionPairs.indexOf(questionPair);
+  room.usedQuestions.push(actualIndex);
+
   const players = room.players;
   const liarIndex = Math.floor(Math.random() * players.length);
   const liar = players[liarIndex];
@@ -427,10 +436,10 @@ function startNewRound(roomCode, questionIndex) {
   room.liarSocketId = liar.socketId;
   room.realQuestion = questionPair.real;
   room.liarQuestion = questionPair.liar;
-  room.currentRound = questionIndex;
+  room.currentRound = (room.currentRound || 0) + 1;
   answers[roomCode] = []; // initialize answer list
 
-  console.log(`🤫 Round ${questionIndex + 1}: The liar is ${liar.username} in room ${roomCode}`);
+  console.log(`🤫 Round ${room.currentRound}: The liar is ${liar.username} in room ${roomCode}`);
   console.log(`📝 Question: ${questionPair.real.substring(0, 50)}...`);
 
   // Emit initial submission status (no one has submitted yet)
@@ -443,7 +452,7 @@ function startNewRound(roomCode, questionIndex) {
   players.forEach((player) => {
     const question = player.socketId === liar.socketId ? questionPair.liar : questionPair.real;
     console.log(`📝 Sending question to ${player.username}: ${question.substring(0, 50)}...`);
-    io.to(player.socketId).emit('game-started', { question, roundNumber: questionIndex + 1 });
+    io.to(player.socketId).emit('game-started', { question, roundNumber: room.currentRound });
   });
 }
 
