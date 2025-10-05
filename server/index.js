@@ -289,6 +289,13 @@ io.on('connection', (socket) => {
 
     console.log(`🗳️ ${voter} voted for ${target} (${totalVotes}/${playerCount})`);
 
+    // Emit updated voting status to all players in the room
+    const votedUsernames = votes[roomCode].map(v => v.voter);
+    io.to(roomCode).emit('voting-status-update', {
+      votedUsernames,
+      totalPlayers: playerCount
+    });
+
     if (totalVotes === playerCount) {
       const tally = {};
       votes[roomCode].forEach(({ target }) => {
@@ -313,7 +320,7 @@ io.on('connection', (socket) => {
         liarQuestion: rooms[roomCode].liarQuestion,
         roundScores: roundScores,
         totalScores: rooms[roomCode].scores,
-        roundNumber: rooms[roomCode].currentRound + 1
+        roundNumber: rooms[roomCode].currentRound
       });
 
       delete votes[roomCode];

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-function VotingScreen({ answers, username, realQuestion, onVote }) {
+function VotingScreen({ answers, username, realQuestion, onVote, votingStatus, players }) {
   const [selectedTarget, setSelectedTarget] = useState(null);
   const [submitted, setSubmitted] = useState(false);
 
@@ -29,9 +29,33 @@ function VotingScreen({ answers, username, realQuestion, onVote }) {
         </div>
 
         {submitted ? (
-          <div className="voted-message">
-            <p>✅ You voted for <strong>{selectedTarget}</strong>. Waiting for others...</p>
-          </div>
+          <>
+            <div className="voted-message">
+              <p>✅ You voted for <strong>{selectedTarget}</strong>. Waiting for others...</p>
+            </div>
+
+            <div className="player-status-section">
+              <h3 className="player-status-title">Voting Status</h3>
+              <div className="player-status-pills">
+                {players && players.length > 0 ? (
+                  players.map((player, index) => {
+                    const hasVoted = votingStatus?.votedUsernames?.includes(player) || false;
+                    return (
+                      <div
+                        key={index}
+                        className={`player-status-pill ${hasVoted ? 'submitted' : 'not-submitted'}`}
+                      >
+                        <span className="player-username">{player}</span>
+                        {hasVoted && <span className="checkmark">✓</span>}
+                      </div>
+                    );
+                  })
+                ) : (
+                  <p className="no-players-message">No players available</p>
+                )}
+              </div>
+            </div>
+          </>
         ) : (
           <div className="answers-section">
             <h3 className="answers-header">Vote for who you think had the different question</h3>

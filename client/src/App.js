@@ -35,6 +35,7 @@ function App() {
   const [gameOver, setGameOver] = useState(false);
   const [lobbyError, setLobbyError] = useState('');
   const [submissionStatus, setSubmissionStatus] = useState({ submittedUsernames: [], totalPlayers: 0 });
+  const [votingStatus, setVotingStatus] = useState({ votedUsernames: [], totalPlayers: 0 });
 
   useEffect(() => {
     const handleUpdatePlayers = (playerData) => {
@@ -128,6 +129,8 @@ function App() {
       setAnswersForVoting(answers);
       setRealQuestion(realQuestion);
       setVotingStarted(true);
+      // Reset voting status for new voting phase
+      setVotingStatus({ votedUsernames: [], totalPlayers: players.length });
     };
 
     const handleResults = (data) => {
@@ -150,6 +153,11 @@ function App() {
       setSubmissionStatus(data);
     };
 
+    const handleVotingStatusUpdate = (data) => {
+      console.log('🗳️ Voting status update:', data);
+      setVotingStatus(data);
+    };
+
     socket.on('connect', () => {
       console.log('✅ Connected to server:', socket.id);
     });
@@ -161,6 +169,7 @@ function App() {
     socket.on('results', handleResults);
     socket.on('game-over', handleGameOver);
     socket.on('submission-status-update', handleSubmissionStatusUpdate);
+    socket.on('voting-status-update', handleVotingStatusUpdate);
 
     return () => {
       socket.off('update-players', handleUpdatePlayers);
@@ -170,6 +179,7 @@ function App() {
       socket.off('results', handleResults);
       socket.off('game-over', handleGameOver);
       socket.off('submission-status-update', handleSubmissionStatusUpdate);
+      socket.off('voting-status-update', handleVotingStatusUpdate);
     };
   }, []);
 
@@ -226,6 +236,7 @@ function App() {
     setRoundNumber(1);
     setTotalScores({});
     setSubmissionStatus({ submittedUsernames: [], totalPlayers: 0 });
+    setVotingStatus({ votedUsernames: [], totalPlayers: 0 });
     setInLobby(false);
     setRoomCode('');
     setModeSelected(false);
@@ -287,6 +298,8 @@ function App() {
           username={username}
           realQuestion={realQuestion}
           onVote={handleVote}
+          votingStatus={votingStatus}
+          players={players}
         />
       ) : gameStarted ? (
         <QuestionScreen

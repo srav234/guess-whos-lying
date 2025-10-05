@@ -1118,6 +1118,11 @@
   white-space: nowrap;
 }
 
+/* Override margin for you-badge in vote results to align with liar-badge */
+.vote-result-item .you-badge {
+  margin-bottom: 0;
+}
+
 .vote-count {
   display: flex;
   align-items: baseline;

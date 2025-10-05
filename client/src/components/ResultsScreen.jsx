@@ -73,12 +73,12 @@ function ResultsScreen({
           <h3 className="real-questions-header">The Real Questions:</h3>
           <div className="questions-list">
             <div className="question-item">
-              <span className="question-label">Everyone else:</span>
-              <span className="question-text">{realQuestion}</span>
-            </div>
-            <div className="question-item">
               <span className="question-label">{liar} (Liar):</span>
               <span className="question-text">{liarQuestion}</span>
+            </div>
+            <div className="question-item">
+              <span className="question-label">Everyone else:</span>
+              <span className="question-text">{realQuestion}</span>
             </div>
           </div>
         </div>
