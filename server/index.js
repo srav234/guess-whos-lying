@@ -70,19 +70,19 @@ const questionPairs = [
   },
   {
     real: "What animal would you choose to turn into?",
-    liar: "What's your least favourite animal?"
+    liar: "What's an overrate animal?"
   },
   {
     real: "How many push ups can you do?",
     liar: "State a number from 1-40"
   },
   {
-    real: "What's your dream vacation destination that you haven't yet been to?",
-    liar: "Where's the best place you've travelled in the last 5 years?"
+    real: "What is your favourite cusine to eat out",
+    liar: "What cuisine can you cook the best?"
   },
   {
     real: "What's the last movie that made you cry?",
-    liar: "What's the last movie that was so bad you couldn't finish?"
+    liar: "What's the last movie you couldn't finish?"
   },
   {
     real: "What's your hidden talent?",
@@ -96,10 +96,7 @@ const questionPairs = [
     real: "What's your go to pizza topping?",
     liar: "What pizza topping should be banned?"
   },
-  {
-    real: "What's your favourite season of the year?",
-    liar: "What's your least favourite season of the year?"
-  },
+  
   {
     real: "What social media app do you use the most?",
     liar: "What social media app do you think is most toxic?"
@@ -135,8 +132,149 @@ const questionPairs = [
   {
     real: "If you could be a contestant on any reality TV show, what would it be?",
     liar: "What reality TV show do you hate?"
-  }
-];
+  },
+  {
+    real: "What is the household chore you do most frequently?",
+    liar: "What is your most enjoyable household chore?"
+  },
+  {
+    real: "What is a word you wish you could delete from everyone's vocabulary?",
+    liar: "What's your favourite Gen Z slang?"
+  },
+  {
+    real: "How much money would it take to publish your entire search history online?",
+    liar: "State a dollar amount between $0 - $50 million"
+  },
+  {
+    real: "What's a hobby that is a green flag in a partner?",
+    liar: "What is a hobby you want to pick up?"
+  },
+  {
+    real: "How old were you when you found out the truth about Santa Claus?",
+    liar: "State a number between 4-13"
+  },
+  {
+    real: "What is one hill you are willing to die on?",
+    liar: "What do you think is an underrated food combination?"
+  },
+  {
+    real: "What is something people only pretend to like?",
+    liar: "What trend or fad would you bring back if you could?"
+  },
+  {
+    real: "What fictional villain do you secretly root for?",
+    liar: "Who is your least favourite villain in movie/TV?"
+  },
+
+  {
+    real: "What's your most irrational fear?",
+    liar: "What fear do you think is totally valid?"
+  },
+
+  {
+    real: "What's a conspiracy theory you kind of believe?",
+    liar: "What's the dumbest conspiracy theory you've heard?"
+  },
+  {
+    real: "How many hours per day are you on your phone?",
+    liar: "State a number between 2-12"
+  },
+  {
+    real: "What's your go-to excuse to get out of plans?",
+    liar: "What excuse do people use to get out of plans that you never believe?"
+  },
+  {
+    real: "What's the most money you've spent on a single meal?",
+    liar: "State a dollar amount between $100-1000"
+  },
+
+  {
+    real: "What celebrity would you want to be best friends with?",
+    liar: "What celebrity do you think is overrated?"
+  },
+
+  {
+    real: "What's your comfort movie that you've watched the most?",
+    liar: "What's a movie everyone loves that you think is boring?"
+  },
+
+  {
+    real: "How many times do you wash your hair per week?",
+    liar: "State a number between 1-7"
+  },
+
+  {
+    real: "What app do you waste the most time on?",
+    liar: "What app should no one have?"
+  },
+  {
+    real: "How many tattoos do you have?",
+    liar: "State a number between 0-10"
+  },
+
+  {
+    real: "What's your guilty pleasure reality TV show?",
+    liar: "What reality TV show format should be cancelled?"
+  },
+  {
+    real: "How many hours of sleep do you need to function?",
+    liar: "State a number between 4-12"
+  },
+  {
+    real: "What's the dumbest thing you've cried about as an adult?",
+    liar: "What's the last thing that made you genuinely happy-cry?"
+  },
+
+  {
+    real: "What's your most expensive impulse purchase?",
+    liar: "What's something you regret not buying when you had the chance?"
+  },
+  {
+    real: "How many first dates have you been on?",
+    liar: "State a number between 0-50"
+  },
+  {
+    real: "What's the most cringe thing you did in high school?",
+    liar: "What's your favorite memory from high school?"
+  },
+
+  {
+    real: "What's your go-to karaoke song?",
+    liar: "What's an overrate karaoke song?"
+  },
+ 
+  {
+    real: "What's your biggest spending category each month (excluding rent/mortgage)?",
+    liar: "What's something you wish you spent less money on?"
+  },
+
+  {
+    real: "What's a song that makes you want to dance?",
+    liar: "What's a song that is an instant skip?"
+  },
+
+  {
+    real: "Who’s the most famous person you’ve ever DMed?",
+    liar: "Who’s the most famous person you'd like to DM?"
+  },
+
+  {
+    real: "What TV show would you show your kids",
+    liar: "What popular kids TV show did you never watch?"
+  },
+ 
+  {
+    real: "What is the best name for a dog",
+    liar: "What human name could also be a dog's name?"
+    
+  },
+
+  {
+    real: "What age should you get your first phone?",
+    liar: "State a number between 7-16"
+  },
+  
+ ];
 
 // Function to randomly select 3 question pairs for a game
 function selectRandomQuestions() {
