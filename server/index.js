@@ -226,6 +226,7 @@ io.on('connection', (socket) => {
     // Initialize tracking for used questions and round counter
     room.usedQuestions = [];
     room.currentRound = 0;
+    room.disconnectedPlayers = []; // Track players who disconnected during the game
 
     startNewRound(roomCode);
   });
@@ -302,8 +303,9 @@ io.on('connection', (socket) => {
         tally[target] = (tally[target] || 0) + 1;
       });
 
-      const liarId = rooms[roomCode].liarSocketId;
-      const liarName = rooms[roomCode].players.find(p => p.socketId === liarId)?.username || 'Unknown';
+      // Use stored liarUsername instead of looking up by socket ID
+      // This handles cases where liar disconnected
+      const liarName = rooms[roomCode].liarUsername || 'Unknown';
 
       // Calculate scores for this round
       const roundScores = calculateRoundScores(roomCode, tally, liarName);
@@ -320,7 +322,8 @@ io.on('connection', (socket) => {
         liarQuestion: rooms[roomCode].liarQuestion,
         roundScores: roundScores,
         totalScores: rooms[roomCode].scores,
-        roundNumber: rooms[roomCode].currentRound
+        roundNumber: rooms[roomCode].currentRound,
+        disconnectedPlayers: rooms[roomCode].disconnectedPlayers || []
       });
 
       delete votes[roomCode];
@@ -334,29 +337,82 @@ io.on('connection', (socket) => {
 
     if (room && room.players) {
       const disconnectedPlayer = room.players.find((p) => p.socketId === socket.id);
-      
+
       if (disconnectedPlayer) {
+        const username = disconnectedPlayer.username;
+
+        // Remove player from room
+        room.players = room.players.filter((p) => p.socketId !== socket.id);
+        const remainingPlayerCount = room.players.length;
+
+        console.log(`❌ ${username} disconnected from room ${roomCode}. ${remainingPlayerCount} players remaining.`);
+
         // Check if admin left and reassign if needed
-        if (disconnectedPlayer.username === room.currentAdmin) {
-          const remainingPlayers = room.players.filter((p) => p.username !== disconnectedPlayer.username);
-          if (remainingPlayers.length > 0) {
-            // Assign new admin randomly
-            const newAdminIndex = Math.floor(Math.random() * remainingPlayers.length);
-            const newAdmin = remainingPlayers[newAdminIndex];
-            room.currentAdmin = newAdmin.username;
-            console.log(`👑 Admin reassigned to ${newAdmin.username} in room ${roomCode}`);
+        const wasAdmin = username === room.currentAdmin;
+        let newAdminUsername = null;
+
+        if (wasAdmin && remainingPlayerCount > 0) {
+          const newAdminIndex = Math.floor(Math.random() * remainingPlayerCount);
+          const newAdmin = room.players[newAdminIndex];
+          room.currentAdmin = newAdmin.username;
+          newAdminUsername = newAdmin.username;
+          console.log(`👑 Admin reassigned to ${newAdmin.username} in room ${roomCode}`);
+        }
+
+        // Check if we're in an active game (not just lobby)
+        const inActiveGame = room.currentRound && room.currentRound > 0;
+
+        if (inActiveGame && remainingPlayerCount < 3) {
+          // Not enough players to continue - end the game
+          console.log(`⚠️ Game ended in room ${roomCode} - not enough players (need 3, have ${remainingPlayerCount})`);
+
+          io.to(roomCode).emit('game-ended', {
+            reason: 'not-enough-players',
+            message: `Game ended - ${username} left and there are not enough players to continue`,
+            finalScores: room.scores || {},
+            disconnectedPlayer: username
+          });
+
+          // Clean up game state but keep room for players to return to lobby
+          delete answers[roomCode];
+          delete votes[roomCode];
+          room.currentRound = 0;
+          room.liarSocketId = null;
+          room.liarUsername = null;
+          room.realQuestion = null;
+          room.liarQuestion = null;
+          room.usedQuestions = [];
+          room.disconnectedPlayers = [];
+        } else if (remainingPlayerCount > 0) {
+          // Enough players remain - update player list
+          emitPlayerList(roomCode);
+
+          // If in active game, track disconnected player and notify others
+          if (inActiveGame) {
+            // Add to disconnected players list for this game
+            if (!room.disconnectedPlayers) {
+              room.disconnectedPlayers = [];
+            }
+            if (!room.disconnectedPlayers.includes(username)) {
+              room.disconnectedPlayers.push(username);
+            }
+
+            // Notify all remaining players
+            io.to(roomCode).emit('player-disconnected', {
+              username: username,
+              remainingPlayers: remainingPlayerCount,
+              wasAdmin: wasAdmin,
+              newAdmin: newAdminUsername
+            });
           }
         }
-        
-        console.log(`❌ Socket ${socket.id} disconnected from ${roomCode}`);
-        emitPlayerList(roomCode);
       }
 
       if (room.players.length === 0) {
         delete rooms[roomCode];
         delete answers[roomCode];
         delete votes[roomCode];
-        console.log(`🧹 Room ${roomCode} deleted`);
+        console.log(`🧹 Room ${roomCode} deleted - all players left`);
       }
     }
 
@@ -441,6 +497,7 @@ function startNewRound(roomCode) {
   const liar = players[liarIndex];
 
   room.liarSocketId = liar.socketId;
+  room.liarUsername = liar.username; // Store username for disconnect handling
   room.realQuestion = questionPair.real;
   room.liarQuestion = questionPair.liar;
   room.currentRound = (room.currentRound || 0) + 1;

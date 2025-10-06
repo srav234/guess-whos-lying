@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import io from 'socket.io-client';
 
-function QuestionScreen({ username, question, roomCode, socket, submissionStatus, players }) {
+function QuestionScreen({ username, question, roomCode, socket, submissionStatus, players, disconnectNotification }) {
   const [answer, setAnswer] = useState('');
   const [submitted, setSubmitted] = useState(false);
   
@@ -39,6 +39,11 @@ function QuestionScreen({ username, question, roomCode, socket, submissionStatus
   return (
     <div className="question-screen">
       <div className="question-card">
+        {disconnectNotification && (
+          <div className="disconnect-notification">
+            ⚠️ {disconnectNotification}
+          </div>
+        )}
         <h1 className="game-title">Guess Who's Lying</h1>
         <h2 className="question-header">Answer the Question</h2>
         <p className="question-instruction"><strong>{username}</strong>, your question is:</p>

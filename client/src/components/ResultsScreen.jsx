@@ -1,12 +1,14 @@
-function ResultsScreen({ 
-  liar, 
-  votes, 
-  realQuestion, 
-  liarQuestion, 
-  roundNumber = 1, 
-  totalScores = {}, 
+function ResultsScreen({
+  liar,
+  votes,
+  realQuestion,
+  liarQuestion,
+  roundNumber = 1,
+  totalScores = {},
   roundScores = {},
-  onNextRound, 
+  disconnectedPlayers = [],
+  disconnectNotification,
+  onNextRound,
   isAdmin,
   username
 }) {
@@ -29,6 +31,11 @@ function ResultsScreen({
   return (
     <div className="results-screen">
       <div className="results-card">
+        {disconnectNotification && (
+          <div className="disconnect-notification">
+            ⚠️ {disconnectNotification}
+          </div>
+        )}
         <h1 className="game-title">Guess Who's Lying</h1>
         <h2 className="results-header">Round {roundNumber} Results</h2>
 
@@ -47,24 +54,30 @@ function ResultsScreen({
         {/* Vote Results Section */}
         <div className="vote-results-section">
           <div className="vote-results-list">
-            {sortedVoteEntries.map(([name, count]) => (
-              <div key={name} className={`vote-result-item ${name === liar ? 'liar-highlighted' : ''}`}>
-                <div className="player-info">
-                  <span className="player-name">{name}</span>
-                  {name === liar && (
-                    <span className="liar-badge">
-                      <span className="bandit-icon">🦹</span>
-                      LIAR
+            {sortedVoteEntries.map(([name, count]) => {
+              const isDisconnected = disconnectedPlayers.includes(name);
+              return (
+                <div key={name} className={`vote-result-item ${name === liar ? 'liar-highlighted' : ''} ${isDisconnected ? 'disconnected-player' : ''}`}>
+                  <div className="player-info">
+                    <span className="player-name">
+                      {name}
+                      {isDisconnected && ' (disconnected)'}
                     </span>
-                  )}
-                  {name === username && <span className="you-badge">YOU</span>}
+                    {name === liar && (
+                      <span className="liar-badge">
+                        <span className="bandit-icon">🦹</span>
+                        LIAR
+                      </span>
+                    )}
+                    {name === username && <span className="you-badge">YOU</span>}
+                  </div>
+                  <div className="vote-count">
+                    <span className="vote-number">{count}</span>
+                    <span className="vote-text"> vote{count !== 1 ? 's' : ''}</span>
+                  </div>
                 </div>
-                <div className="vote-count">
-                  <span className="vote-number">{count}</span>
-                  <span className="vote-text"> vote{count !== 1 ? 's' : ''}</span>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
@@ -91,9 +104,13 @@ function ResultsScreen({
               .sort(([,a], [,b]) => b - a)
               .map(([name, score]) => {
                 const roundScore = roundScores[name] || 0;
+                const isDisconnected = disconnectedPlayers.includes(name);
                 return (
-                  <div key={name} className="total-score-item">
-                    <span className="player-name">{name}</span>
+                  <div key={name} className={`total-score-item ${isDisconnected ? 'disconnected-player' : ''}`}>
+                    <span className="player-name">
+                      {name}
+                      {isDisconnected && ' (disconnected)'}
+                    </span>
                     <div className="score-display">
                       {roundScore > 0 && (
                         <span className="round-score-pill">+{roundScore}</span>

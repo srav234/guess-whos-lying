@@ -9,6 +9,7 @@ import QuestionScreen from './components/QuestionScreen';
 import VotingScreen from './components/VotingScreen';
 import ResultsScreen from './components/ResultsScreen';
 import FinalScoreboardScreen from './components/FinalScoreboardScreen';
+import GameEndedScreen from './components/GameEndedScreen';
 import config from './config';
 import './App.css';
 
@@ -36,6 +37,10 @@ function App() {
   const [lobbyError, setLobbyError] = useState('');
   const [submissionStatus, setSubmissionStatus] = useState({ submittedUsernames: [], totalPlayers: 0 });
   const [votingStatus, setVotingStatus] = useState({ votedUsernames: [], totalPlayers: 0 });
+  const [disconnectedPlayers, setDisconnectedPlayers] = useState([]);
+  const [disconnectNotification, setDisconnectNotification] = useState(null);
+  const [gameEndedEarly, setGameEndedEarly] = useState(false);
+  const [gameEndedData, setGameEndedData] = useState(null);
 
   useEffect(() => {
     const handleUpdatePlayers = (playerData) => {
@@ -137,6 +142,7 @@ function App() {
       console.log('🎉 Results received:', data);
       setResults(data);
       setTotalScores(data.totalScores || {});
+      setDisconnectedPlayers(data.disconnectedPlayers || []);
       if (data.roundNumber) {
         setRoundNumber(data.roundNumber);
       }
@@ -146,6 +152,14 @@ function App() {
       console.log('🏁 Game over:', data);
       setGameOver(true);
       setTotalScores(data.totalScores || {});
+    };
+
+    const handleGameEnded = (data) => {
+      console.log('⚠️ Game ended early:', data);
+      // Game ended due to player disconnect - show game ended screen
+      setGameEndedEarly(true);
+      setGameEndedData(data);
+      setTotalScores(data.finalScores || {});
     };
 
     const handleSubmissionStatusUpdate = (data) => {
@@ -158,6 +172,25 @@ function App() {
       setVotingStatus(data);
     };
 
+    const handlePlayerDisconnected = (data) => {
+      console.log('❌ Player disconnected:', data);
+
+      // Build notification message
+      let message = `${data.username} has disconnected from the game`;
+
+      // If disconnected player was admin and there's a new admin, show that info
+      if (data.wasAdmin && data.newAdmin) {
+        message += `. ${data.newAdmin} is now the admin`;
+      }
+
+      setDisconnectNotification(message);
+
+      // Auto-hide notification after 5 seconds
+      setTimeout(() => {
+        setDisconnectNotification(null);
+      }, 5000);
+    };
+
     socket.on('connect', () => {
       console.log('✅ Connected to server:', socket.id);
     });
@@ -168,6 +201,8 @@ function App() {
     socket.on('voting-start', handleVotingStart);
     socket.on('results', handleResults);
     socket.on('game-over', handleGameOver);
+    socket.on('game-ended', handleGameEnded);
+    socket.on('player-disconnected', handlePlayerDisconnected);
     socket.on('submission-status-update', handleSubmissionStatusUpdate);
     socket.on('voting-status-update', handleVotingStatusUpdate);
 
@@ -178,6 +213,8 @@ function App() {
       socket.off('voting-start', handleVotingStart);
       socket.off('results', handleResults);
       socket.off('game-over', handleGameOver);
+      socket.off('game-ended', handleGameEnded);
+      socket.off('player-disconnected', handlePlayerDisconnected);
       socket.off('submission-status-update', handleSubmissionStatusUpdate);
       socket.off('voting-status-update', handleVotingStatusUpdate);
     };
@@ -225,8 +262,16 @@ function App() {
 
 
 
+  const handleSeeResults = () => {
+    // Transition from game ended early screen to final scoreboard
+    setGameEndedEarly(false);
+    setGameOver(true);
+  };
+
   const handleMainMenu = () => {
     setGameOver(false);
+    setGameEndedEarly(false);
+    setGameEndedData(null);
     setResults(null);
     setGameStarted(false);
     setVotingStarted(false);
@@ -273,6 +318,12 @@ function App() {
     <div className="App">
       {!username ? (
         <UsernameScreen onSubmit={handleUsernameSubmit} />
+      ) : gameEndedEarly ? (
+        <GameEndedScreen
+          message={gameEndedData?.message || 'Game ended unexpectedly'}
+          disconnectedPlayer={gameEndedData?.disconnectedPlayer}
+          onSeeResults={handleSeeResults}
+        />
       ) : gameOver ? (
         <FinalScoreboardScreen
           totalScores={totalScores}
@@ -287,6 +338,8 @@ function App() {
           roundNumber={roundNumber}
           totalScores={totalScores}
           roundScores={results.roundScores || {}}
+          disconnectedPlayers={disconnectedPlayers}
+          disconnectNotification={disconnectNotification}
           onNextRound={handleNextRound}
           isAdmin={isAdmin}
           username={username}
@@ -300,6 +353,7 @@ function App() {
           onVote={handleVote}
           votingStatus={votingStatus}
           players={players}
+          disconnectNotification={disconnectNotification}
         />
       ) : gameStarted ? (
         <QuestionScreen
@@ -309,6 +363,7 @@ function App() {
           socket={socket}
           submissionStatus={submissionStatus}
           players={players}
+          disconnectNotification={disconnectNotification}
         />
       ) : inLobby ? (
         <LobbyScreen

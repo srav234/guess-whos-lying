@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-function VotingScreen({ answers, username, realQuestion, onVote, votingStatus, players }) {
+function VotingScreen({ answers, username, realQuestion, onVote, votingStatus, players, disconnectNotification }) {
   const [selectedTarget, setSelectedTarget] = useState(null);
   const [submitted, setSubmitted] = useState(false);
 
@@ -19,8 +19,13 @@ function VotingScreen({ answers, username, realQuestion, onVote, votingStatus, p
   return (
     <div className="voting-screen">
       <div className="voting-card">
+        {disconnectNotification && (
+          <div className="disconnect-notification">
+            ⚠️ {disconnectNotification}
+          </div>
+        )}
         <h1 className="game-title">Guess Who's Lying</h1>
-        
+
         <div className="real-question-section">
           <p className="question-label">The real question was:</p>
           <div className="real-question-display">
