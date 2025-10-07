@@ -9,14 +9,29 @@ const server = http.createServer(app);
 // Get frontend URL from environment variable or use localhost for development
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 
+// Build allowed origins array - support both www and non-www versions
+const allowedOrigins = ['http://localhost:3000'];
+
+if (FRONTEND_URL !== 'http://localhost:3000') {
+  allowedOrigins.push(FRONTEND_URL);
+
+  // If FRONTEND_URL has www, also add non-www version (and vice versa)
+  if (FRONTEND_URL.includes('://www.')) {
+    allowedOrigins.push(FRONTEND_URL.replace('://www.', '://'));
+  } else if (FRONTEND_URL.includes('://')) {
+    const [protocol, domain] = FRONTEND_URL.split('://');
+    allowedOrigins.push(`${protocol}://www.${domain}`);
+  }
+}
+
 // Debug logging for CORS configuration
 console.log('🔧 CORS Configuration:');
 console.log('   FRONTEND_URL:', FRONTEND_URL);
-console.log('   Allowed origins:', [FRONTEND_URL, 'http://localhost:3000']);
+console.log('   Allowed origins:', allowedOrigins);
 
 const io = new Server(server, {
   cors: {
-    origin: [FRONTEND_URL, 'http://localhost:3000'],
+    origin: allowedOrigins,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
@@ -27,7 +42,7 @@ const io = new Server(server, {
 });
 
 app.use(cors({
-  origin: [FRONTEND_URL, 'http://localhost:3000'],
+  origin: allowedOrigins,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
