@@ -10,10 +10,7 @@ const server = http.createServer(app);
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 
 // Build allowed origins array - support both www and non-www versions
-const allowedOrigins = [
-  'http://localhost:3000',
-  'https://lying-game-frontend.vercel.app' // Keep old Vercel domain working
-];
+const allowedOrigins = ['http://localhost:3000'];
 
 if (FRONTEND_URL !== 'http://localhost:3000') {
   allowedOrigins.push(FRONTEND_URL);
