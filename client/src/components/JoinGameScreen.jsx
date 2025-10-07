@@ -35,7 +35,7 @@ function JoinGameScreen({ onJoin, onBack, error: serverError }) {
   return (
     <div className="join-game-screen">
       <div className="join-game-card">
-        <h1 className="game-title">Guess Who's Lying</h1>
+        <h1 className="game-title">Who's the Liar</h1>
         <h2 className="join-header">Join Game</h2>
         <p className="join-instruction">Enter the room code to join your friends</p>
         

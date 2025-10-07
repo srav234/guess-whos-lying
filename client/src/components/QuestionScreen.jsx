@@ -44,7 +44,7 @@ function QuestionScreen({ username, question, roomCode, socket, submissionStatus
             ⚠️ {disconnectNotification}
           </div>
         )}
-        <h1 className="game-title">Guess Who's Lying</h1>
+        <h1 className="game-title">Who's the Liar</h1>
         <h2 className="question-header">Answer the Question</h2>
         <p className="question-instruction"><strong>{username}</strong>, your question is:</p>
 

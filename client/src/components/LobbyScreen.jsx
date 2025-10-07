@@ -28,7 +28,7 @@ function LobbyScreen({ roomCode, players, username, isAdmin, onStart, currentAdm
     <div className="lobby-screen">
       <div className="lobby-container">
         <div className="lobby-header">
-          <h1 className="game-title">Guess Who's Lying</h1>
+          <h1 className="game-title">Who's the Liar</h1>
           <p className="lobby-instruction">
             Join the game and wait for the admin to start!
           </p>

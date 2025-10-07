@@ -3,7 +3,7 @@ function GameModeScreen({ username, onCreate, onJoin }) {
   return (
     <div className="game-mode-screen">
       <div className="game-mode-card">
-        <h1 className="game-title">Guess Who's Lying</h1>
+        <h1 className="game-title">Who's the Liar</h1>
         <p className="welcome-text">Welcome, {username}!</p>
         
         <div className="game-options">

@@ -14,7 +14,7 @@ function FinalScoreboardScreen({ totalScores, onMainMenu }) {
       <div className="game-over-banner">
         <div className="trophy-icon">🏆</div>
         <h1 className="game-over-title">Game Over!</h1>
-        <p className="game-over-subtitle">Thanks for playing Guess Who's Lying</p>
+        <p className="game-over-subtitle">Thanks for playing Who's the Liar</p>
       </div>
 
       {/* Winner Announcement */}

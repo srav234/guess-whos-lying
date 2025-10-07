@@ -22,7 +22,7 @@ function UsernameScreen({ onSubmit }) {
   return (
     <div className="username-screen">
       <div className="username-card">
-        <h1 className="game-title">Guess Who's Lying</h1>
+        <h1 className="game-title">Who's the Liar</h1>
         <p className="game-subtitle">The ultimate party game of deception and detection</p>
         
         <div className="how-to-play-section">

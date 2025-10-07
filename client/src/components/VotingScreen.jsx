@@ -24,7 +24,7 @@ function VotingScreen({ answers, username, realQuestion, onVote, votingStatus, p
             ⚠️ {disconnectNotification}
           </div>
         )}
-        <h1 className="game-title">Guess Who's Lying</h1>
+        <h1 className="game-title">Who's the Liar</h1>
 
         <div className="real-question-section">
           <p className="question-label">The real question was:</p>
