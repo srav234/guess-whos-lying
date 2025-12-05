@@ -34,6 +34,7 @@ function UsernameScreen({ onSubmit }) {
             <li>Vote for who you think got the different question</li>
             <li>If the majority guesses right, they get a point</li>
             <li>If the majority does not vote out the liar, the liar gets a point</li>
+            <li>First player to 5 points wins!</li>
           </ul>
         </div>
         
