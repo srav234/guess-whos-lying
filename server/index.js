@@ -56,13 +56,10 @@ const questionPairs = [
     real: "What's the most amount of alcoholic drinks you've had in one night?",
     liar: "State a number between 2-30"
   },
+
   {
-    real: "What's your favourite TV show of all time?",
-    liar: "What's the most overrated TV show of all time?"
-  },
-  {
-    real: "What time period in history would travel back in time to?",
-    liar: "What would be the worst period in history to time travel to?"
+    real: "What time period in history would be the most interesting to time travel to?",
+    liar: "What would be the most dangerous period in history to time travel to?"
   },
   {
     real: "What's the one thing you can't live without in your house?",
@@ -70,7 +67,7 @@ const questionPairs = [
   },
   {
     real: "What animal would you choose to turn into?",
-    liar: "What's an overrate animal?"
+    liar: "What's an overrated animal?"
   },
   {
     real: "How many push ups can you do?",
@@ -84,10 +81,7 @@ const questionPairs = [
     real: "What's the last movie that made you cry?",
     liar: "What's the last movie you couldn't finish?"
   },
-  {
-    real: "What's your hidden talent?",
-    liar: "What skill do you wish you had?"
-  },
+
   {
     real: "What's your favourite form of exercise?",
     liar: "What form of exercise do you avoid at all costs?"
@@ -121,10 +115,7 @@ const questionPairs = [
     real: "How many pairs of shoes do you own?",
     liar: "State a number between 5-50"
   },
-  {
-    real: "How many times do you hit the snooze button in the morning?",
-    liar: "State a number between 0-10"
-  },
+
   {
     real: "What's the most number of days you've gone without showering?",
     liar: "State a number between 0-7"
@@ -207,15 +198,9 @@ const questionPairs = [
     real: "What app do you waste the most time on?",
     liar: "What app should no one have?"
   },
-  {
-    real: "How many tattoos do you have?",
-    liar: "State a number between 0-10"
-  },
 
-  {
-    real: "What's your guilty pleasure reality TV show?",
-    liar: "What reality TV show format should be cancelled?"
-  },
+
+
   {
     real: "How many hours of sleep do you need to function?",
     liar: "State a number between 4-12"
@@ -227,20 +212,17 @@ const questionPairs = [
 
   {
     real: "What's your most expensive impulse purchase?",
-    liar: "What's something you regret not buying when you had the chance?"
+    liar: "What's something you regret buying?"
   },
   {
     real: "How many first dates have you been on?",
     liar: "State a number between 0-50"
   },
-  {
-    real: "What's the most cringe thing you did in high school?",
-    liar: "What's your favorite memory from high school?"
-  },
+
 
   {
     real: "What's your go-to karaoke song?",
-    liar: "What's an overrate karaoke song?"
+    liar: "What's an overrated karaoke song?"
   },
  
   {
@@ -250,7 +232,7 @@ const questionPairs = [
 
   {
     real: "What's a song that makes you want to dance?",
-    liar: "What's a song that is an instant skip?"
+    liar: "What's a popular song that is an instant skip?"
   },
 
   {
@@ -264,7 +246,7 @@ const questionPairs = [
   },
  
   {
-    real: "What is the best name for a dog",
+    real: "What is the best name for a dog (you can't use your actual dog's name)",
     liar: "What human name could also be a dog's name?"
     
   },
@@ -273,14 +255,98 @@ const questionPairs = [
     real: "What age should you get your first phone?",
     liar: "State a number between 7-16"
   },
-  
- ];
 
-// Function to randomly select 3 question pairs for a game
-function selectRandomQuestions() {
-  const shuffled = [...questionPairs].sort(() => 0.5 - Math.random());
-  return shuffled.slice(0, 3);
-}
+  {
+    real: "How many people would you have at your wedding",
+    liar: "State a number between 50-500"
+  },
+
+  {
+    real: "If you could receive one gift from Santa this year, what it would be?",
+    liar: "What's the first item you would buy for a new apartment?"
+  },
+
+  {
+    real: "What's the best sport to watch live?",
+    liar: "What's the sport you think you're best at?"
+  },
+
+  {
+    real: "What Christmas song would go hardest in the club?",
+    liar: "What is the most overplayed Christmas song?"
+  },
+
+  {
+    real: "What's the best Christmas movie?",
+    liar: "What is the most overplayed Christmas movie?"
+  },
+
+  {
+    real: "What's your comfort meal?",
+    liar: "What meal can you cook the best?"
+  },
+
+  {
+    real: "If you won the lottery what % would you give to your parents?",
+    liar: "List a % between 10-100%"
+  },
+
+  {
+    real: "If you could make an inanimate object come to life, what would it be?",
+    liar: "What's the best physical gift (object) you've ever received?"
+  },
+
+  {
+    real: "Would you slap a toddler (hard) for $10K?",
+    liar: "Answer either Yes or No"
+  },
+
+  {
+    real: "How much have you made or spent on OnlyFans?",
+    liar: "State a $ amount between 0-$10K"
+  },
+
+  {
+    real: "What's your pitch for an invention that would change the world?",
+    liar: "Name any futuristic technology that doesn't yet exist"
+  },
+
+  {
+    real: "Who's someone that inspires you?",
+    liar: "Who's your favourite TV show character?"
+  },
+
+  {
+    real: "If you could go back in time and tell your 10 year old self one thing, what would it be?",
+    liar: "What advice could you give a dog if you could talk to it?"
+  },
+
+  {
+    real: "How long would you last in a match with a professional boxer?",
+    liar: "Name a time between 1 second to 10 minutes"
+  },
+
+  {
+    real: "Where would you hide buried treasure?",
+    liar: "What's a memorable location from your childhood?"
+  },
+
+  {
+    real: "What's your favourite activity to do with the homies?",
+    liar: "What's a group activity that you want to do more of?"
+  },
+
+  {
+    real: "Can you bench press your bodyweight?",
+    liar: "Answer either Yes or No"
+  },
+
+  {
+    real: "What animal can you do the best impression of?",
+    liar: "What animal makes the most annoying sound?"
+  },
+
+ ];
 
 io.on('connection', (socket) => {
   console.log('✅ New connection:', socket.id);
