@@ -13,17 +13,30 @@ import config from './config';
 import './App.css';
 
 const SESSION_KEY = 'lying-game-session';
-function readSession() {
-  try { return JSON.parse(localStorage.getItem(SESSION_KEY)); } catch { return null; }
+function readSession(storage) {
+  try {
+    const value = JSON.parse(storage.getItem(SESSION_KEY));
+    return value && typeof value.token === 'string' && typeof value.roomCode === 'string' && typeof value.username === 'string' ? value : null;
+  } catch { return null; }
 }
 function saveSession(value) {
-  try { if (value) localStorage.setItem(SESSION_KEY, JSON.stringify(value)); else localStorage.removeItem(SESSION_KEY); } catch { /* Storage can be unavailable in private browsing. */ }
+  try {
+    if (value) {
+      sessionStorage.setItem(SESSION_KEY, JSON.stringify(value));
+      localStorage.setItem(SESSION_KEY, JSON.stringify(value));
+    } else {
+      const current = readSession(sessionStorage);
+      sessionStorage.removeItem(SESSION_KEY);
+      if (current?.token === readSession(localStorage)?.token) localStorage.removeItem(SESSION_KEY);
+    }
+  } catch { /* Storage can be unavailable in private browsing. */ }
 }
 
 function App() {
   const socketRef = useRef(null);
-  const sessionRef = useRef(readSession());
+  const sessionRef = useRef(readSession(sessionStorage));
   const [username, setUsername] = useState(sessionRef.current?.username || '');
+  const [previousSession, setPreviousSession] = useState(() => readSession(localStorage));
   const [mode, setMode] = useState('menu');
   const [room, setRoom] = useState(null);
   const [connected, setConnected] = useState(false);
@@ -42,7 +55,7 @@ function App() {
       socket.timeout(10000).emit('resume-room', session, (timeout, response) => {
         setPending(false);
         if (timeout) { setError('Could not restore your session. Tap Reconnect to try again.'); return; }
-        if (!response?.ok) { sessionRef.current = null; saveSession(null); setRoom(null); setMode('menu'); setError(response?.error || 'Session expired'); return; }
+        if (!response?.ok) { sessionRef.current = null; saveSession(null); setRoom(null); setMode('menu'); setPreviousSession(null); setError(response?.error || 'Session expired'); return; }
         onState(response.state);
       });
     };
@@ -68,12 +81,18 @@ function App() {
   function enterRoom(event, code) {
     request(event, { username, roomCode: code }, response => {
       const session = { roomCode: response.state.roomCode, token: response.token, username: response.state.username };
-      sessionRef.current = session; saveSession(session); setRoom(response.state); setShowFinal(false);
+      sessionRef.current = session; saveSession(session); setPreviousSession(session); setRoom(response.state); setShowFinal(false);
     });
   }
   function mainMenu() {
     request('leave-room', { roomCode: room.roomCode }, () => {
-      sessionRef.current = null; saveSession(null); setRoom(null); setMode('menu'); setShowFinal(false);
+      sessionRef.current = null; saveSession(null); setPreviousSession(null); setRoom(null); setMode('menu'); setShowFinal(false);
+    });
+  }
+  function rejoinPrevious() {
+    request('resume-room', previousSession, response => {
+      sessionRef.current = previousSession; saveSession(previousSession);
+      setRoom(response.state); setUsername(response.state.username); setShowFinal(false);
     });
   }
   function reconnect() { socketRef.current?.disconnect(); socketRef.current?.connect(); }
@@ -95,6 +114,7 @@ function App() {
     {(!connected || (error && (room || mode !== 'join'))) && <div role="status" className="error-message">{error || 'Reconnecting… Your place is held for two minutes.'}<button onClick={reconnect}>Reconnect</button></div>}
     {pending && <p role="status">Connecting…</p>}
     {screen}
+    {!room && !sessionRef.current && previousSession && <button disabled={pending || !connected} onClick={rejoinPrevious}>Rejoin previous game as {previousSession.username}</button>}
   </div>;
 }
 export default App;

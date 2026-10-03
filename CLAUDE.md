@@ -11,7 +11,7 @@ Run these commands in `client/` or `server/` respectively.
 
 ## Architecture
 
-`server/index.js` configures HTTP/CORS and contains the question pool. `server/game-server.js` owns rooms, stable player tokens, scores, phase transitions and socket validation. `client/src/App.js` renders screens from authoritative `room-state` snapshots and persists a room code/player token in localStorage for refresh/reconnect recovery.
+`server/index.js` configures HTTP/CORS and contains the question pool. `server/game-server.js` owns rooms, stable player tokens, scores, phase transitions and socket validation. `client/src/App.js` renders screens from authoritative `room-state` snapshots and persists a room code/player token in sessionStorage for tab-specific refresh/reconnect recovery. localStorage remembers the latest session only for an explicit Rejoin previous game action; new tabs do not automatically take over another player.
 
 Phases: `lobby`, `answering`, `voting`, `results`, `finished`, `ended`.
 
@@ -21,7 +21,7 @@ Snapshots are personalized: each player sees only their assigned question during
 
 ## Reconnect and leaving
 
-A disconnected player's seat is retained for two minutes. `resume-room` verifies the saved token and rebinds the new socket, restoring the phase, question, scores and submission flags. Admin transfers to a connected player when the current admin disconnects. Starting a round waits for everyone to be connected. If a participant leaves or expires during answering/voting, the round is cancelled and the final-score screen is available. Empty rooms are deleted after sessions expire. Explicit Main Menu requests leave the room and clear localStorage.
+A disconnected player's seat is retained for two minutes. `resume-room` verifies the saved token and rebinds the new socket, restoring the phase, question, scores and submission flags. Admin transfers to a connected player when the current admin disconnects. Starting a round waits for everyone to be connected. If a participant leaves or expires during answering/voting, the round is cancelled and the final-score screen is available. Empty rooms are deleted after sessions expire. Explicit Main Menu requests leave the room and clear the tab session and clear the shared last-session entry only if it belongs to that player.
 
 Rooms are stored in process memory. Reconnect recovery works while this backend process remains alive. Process restarts lose rooms; multiple backend replicas would require shared storage and Socket.IO coordination. Deploy client and server together because the event protocol changed.
 
