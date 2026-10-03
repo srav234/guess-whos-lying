@@ -1,9 +1,8 @@
 import { useState } from 'react';
-import io from 'socket.io-client';
 
-function QuestionScreen({ username, question, roomCode, socket, submissionStatus, players, disconnectNotification }) {
+function QuestionScreen({ username, question, onSubmit, submitted, pending, submissionStatus, players, disconnectNotification }) {
   const [answer, setAnswer] = useState('');
-  const [submitted, setSubmitted] = useState(false);
+
   
 
 
@@ -14,19 +13,7 @@ function QuestionScreen({ username, question, roomCode, socket, submissionStatus
       return;
     }
 
-    socket.emit('submit-answer', {
-      roomCode,
-      username,
-      answer: trimmed
-    });
-
-    setSubmitted(true);
-    
-    // Update local submission status immediately for better UX
-    const updatedSubmissionStatus = {
-      ...submissionStatus,
-      submittedUsernames: [...submissionStatus.submittedUsernames, username]
-    };
+    if (!submitted && !pending) onSubmit(trimmed);
   };
 
   const handleKeyPress = (e) => {
@@ -80,6 +67,7 @@ function QuestionScreen({ username, question, roomCode, socket, submissionStatus
               value={answer}
               onChange={(e) => setAnswer(e.target.value)}
               onKeyPress={handleKeyPress}
+              maxLength={1000}
               rows={4}
               placeholder="Type your answer here..."
               className="answer-input"
@@ -87,7 +75,7 @@ function QuestionScreen({ username, question, roomCode, socket, submissionStatus
             <button
               onClick={handleSubmit}
               className="submit-button"
-              disabled={answer.trim().length === 0}
+              disabled={pending || answer.trim().length === 0}
             >
               Submit Answer
             </button>

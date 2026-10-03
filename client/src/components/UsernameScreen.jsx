@@ -42,14 +42,17 @@ function UsernameScreen({ onSubmit }) {
         
         <div className="input-container">
           <input
+            id="player-nickname"
+            name="player-nickname"
+            aria-label="Game nickname"
             type="text"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            onKeyPress={handleKeyPress}
+            onKeyDown={handleKeyPress}
             placeholder="Enter your username"
             maxLength={20}
             className="username-input"
-            autoComplete="new-password"
+            autoComplete="off"
             autoCorrect="off"
             autoCapitalize="off"
             spellCheck="false"

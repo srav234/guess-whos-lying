@@ -1,4 +1,5 @@
 function ResultsScreen({
+  caught,
   liar,
   votes,
   realQuestion,
@@ -12,14 +13,6 @@ function ResultsScreen({
   isAdmin,
   username
 }) {
-  // Debug logging
-  console.log('🎯 ResultsScreen props:', { liar, votes, realQuestion, liarQuestion, roundNumber, totalScores, isAdmin, username });
-  
-  // Calculate if majority guessed correctly
-  const totalVotes = Object.values(votes).reduce((sum, count) => sum + count, 0);
-  const liarVotes = votes[liar] || 0;
-  const majorityGuessedCorrectly = liarVotes > totalVotes / 2;
-
   // Build a full list of players (include zero-vote players) and sort by vote count desc
   const allPlayers = Object.keys(totalScores).length
     ? Object.keys(totalScores)
@@ -43,7 +36,7 @@ function ResultsScreen({
         <div className="success-banner">
           <span className="confetti-emoji">🎉</span>
           <span className="success-text">
-            {majorityGuessedCorrectly ? (
+            {caught ? (
               <>The majority guessed correctly! <strong>{liar}</strong> was the liar!</>
             ) : (
               <>Liar wins! <strong>{liar}</strong> was the liar!</>

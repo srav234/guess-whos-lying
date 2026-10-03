@@ -1,7 +1,7 @@
 // components/LobbyScreen.jsx
 import { useState } from 'react';
 
-function LobbyScreen({ roomCode, players, username, isAdmin, onStart, currentAdmin, error }) {
+function LobbyScreen({ roomCode, players, username, isAdmin, onStart, currentAdmin, error, pending }) {
   const [copySuccess, setCopySuccess] = useState(false);
   
   const handleCopyRoomCode = async () => {
@@ -102,7 +102,7 @@ function LobbyScreen({ roomCode, players, username, isAdmin, onStart, currentAdm
 
         {canStartGame ? (
           <div className="start-game-section">
-            <button onClick={onStart} className="start-game-button">
+            <button disabled={pending || players.length < 3} onClick={onStart} className="start-game-button">
               Start Game
             </button>
           </div>

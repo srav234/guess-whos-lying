@@ -1,8 +1,7 @@
 import { useState } from 'react';
 
-function VotingScreen({ answers, username, realQuestion, onVote, votingStatus, players, disconnectNotification }) {
+function VotingScreen({ answers, username, realQuestion, onVote, submitted, pending, votingStatus, players, disconnectNotification }) {
   const [selectedTarget, setSelectedTarget] = useState(null);
-  const [submitted, setSubmitted] = useState(false);
 
   const handleCardClick = (suspect) => {
     if (submitted) return;
@@ -11,8 +10,7 @@ function VotingScreen({ answers, username, realQuestion, onVote, votingStatus, p
   };
 
   const handleSubmitVote = () => {
-    if (!selectedTarget || submitted) return;
-    setSubmitted(true);
+    if (!selectedTarget || submitted || pending) return;
     onVote(selectedTarget);
   };
 
@@ -36,7 +34,7 @@ function VotingScreen({ answers, username, realQuestion, onVote, votingStatus, p
         {submitted ? (
           <>
             <div className="voted-message">
-              <p>✅ You voted for <strong>{selectedTarget}</strong>. Waiting for others...</p>
+              <p>✅ You voted for <strong>{selectedTarget || "your chosen player"}</strong>. Waiting for others...</p>
             </div>
 
             <div className="player-status-section">
@@ -91,7 +89,7 @@ function VotingScreen({ answers, username, realQuestion, onVote, votingStatus, p
               <button
                 className={`submit-button cast-vote-button`}
                 onClick={handleSubmitVote}
-                disabled={!selectedTarget}
+                disabled={pending || !selectedTarget}
               >
                 {selectedTarget ? `Cast Vote for ${selectedTarget}` : 'Cast Vote'}
               </button>

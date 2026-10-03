@@ -1,11 +1,12 @@
 // components/JoinGameScreen.jsx
 import { useState } from 'react';
 
-function JoinGameScreen({ onJoin, onBack, error: serverError }) {
+function JoinGameScreen({ onJoin, onBack, error: serverError, pending }) {
   const [code, setCode] = useState('');
   const [localError, setLocalError] = useState('');
 
   const handleJoinClick = () => {
+    if (pending) return;
     const trimmed = code.trim().toUpperCase();
     if (trimmed.length !== 6) {
       setLocalError('Please enter a valid 6-character room code');
@@ -41,14 +42,17 @@ function JoinGameScreen({ onJoin, onBack, error: serverError }) {
         
         <div className="input-container">
           <input
+            id="room-code"
+            name="room-code"
+            aria-label="Room code"
             type="text"
             value={code}
             onChange={handleInputChange}
-            onKeyPress={handleKeyPress}
+            onKeyDown={handleKeyPress}
             placeholder="Enter room code"
             maxLength={6}
             className="room-code-input"
-            autoComplete="new-password"
+            autoComplete="off"
             autoCorrect="off"
             autoCapitalize="off"
             spellCheck="false"
@@ -59,7 +63,7 @@ function JoinGameScreen({ onJoin, onBack, error: serverError }) {
         </div>
         
         <div className="button-group">
-          <button onClick={handleJoinClick} className="join-button">
+          <button disabled={pending} onClick={handleJoinClick} className="join-button">
             Join
           </button>
           <button onClick={onBack} className="back-button">
